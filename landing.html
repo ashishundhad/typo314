@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invoxa — The Counter-Side Ledger for Phone Dealers</title>
+<meta name="description" content="Invoxa runs the whole phone-resale counter — stock, sales, exchange, cash closing — in one ledger, not six notebooks.">
+<meta name="keywords" content="mobile business, phone resale, inventory management, POS, invoicing, business management">
+<meta name="author" content="Invoxa">
+<meta property="og:title" content="Invoxa — The Counter-Side Ledger for Phone Dealers">
+<meta property="og:description" content="One ledger for every phone that moves through your counter — stock, sales, exchange, and daily cash closing.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --ink: #211f1b;
+    --ink-soft: rgba(33, 31, 27, 0.64);
+    --ink-faint: rgba(33, 31, 27, 0.4);
+    --paper: #eef0e8;
+    --paper-deep: #dfe2d3;
+    --paper-card: #f6f7f1;
+    --rule: rgba(33, 31, 27, 0.16);
+    --stamp: #a23a2e;
+    --stamp-soft: rgba(162, 58, 46, 0.12);
+    --brass: #8a6c37;
+    --brass-soft: rgba(138, 108, 55, 0.14);
+    --focus: #2f6f5e;
+    --shadow: 0 18px 40px rgba(33, 31, 27, 0.14);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #eee9df;
+      --ink-soft: rgba(238, 233, 223, 0.68);
+      --ink-faint: rgba(238, 233, 223, 0.42);
+      --paper: #1b1a16;
+      --paper-deep: #14130f;
+      --paper-card: #232019;
+      --rule: rgba(238, 233, 223, 0.16);
+      --stamp: #d9695a;
+      --stamp-soft: rgba(217, 105, 90, 0.16);
+      --brass: #c9a35f;
+      --brass-soft: rgba(201, 163, 95, 0.16);
+      --focus: #6bb39d;
+      --shadow: 0 18px 44px rgba(0, 0, 0, 0.5);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ink: #eee9df;
+    --ink-soft: rgba(238, 233, 223, 0.68);
+    --ink-faint: rgba(238, 233, 223, 0.42);
+    --paper: #1b1a16;
+    --paper-deep: #14130f;
+    --paper-card: #232019;
+    --rule: rgba(238, 233, 223, 0.16);
+    --stamp: #d9695a;
+    --stamp-soft: rgba(217, 105, 90, 0.16);
+    --brass: #c9a35f;
+    --brass-soft: rgba(201, 163, 95, 0.16);
+    --focus: #6bb39d;
+    --shadow: 0 18px 44px rgba(0, 0, 0, 0.5);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
+  }
+
+  a { color: inherit; }
+  h1, h2, h3, h4 { font-family: "DM Sans", sans-serif; font-weight: 600; letter-spacing: -0.01em; text-wrap: balance; margin: 0; }
+  .mono { font-variant-numeric: tabular-nums; }
+
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 28px; }
+
+  .band { background: var(--paper-deep); }
+
+  header {
+    position: sticky; top: 0; z-index: 50;
+    background: color-mix(in srgb, var(--paper) 92%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--rule);
+  }
+  nav.wrap { display: flex; align-items: center; justify-content: space-between; height: 76px; }
+  .brand { display: flex; align-items: baseline; gap: 8px; text-decoration: none; font-family: "DM Sans", sans-serif; font-weight: 700; font-size: 1.5rem; }
+  .brand .dot { color: var(--stamp); }
+  .nav-links { display: flex; align-items: center; gap: 34px; list-style: none; margin: 0; padding: 0; }
+  .nav-links a { text-decoration: none; font-size: 0.95rem; color: var(--ink-soft); transition: color 0.15s; }
+  .nav-links a:hover { color: var(--ink); }
+  .nav-cta { border: 1.5px solid var(--ink); padding: 9px 20px; border-radius: 2px; font-weight: 600; font-size: 0.9rem; }
+  .nav-cta:hover { background: var(--ink); color: var(--paper); }
+  .nav-toggle { display: none; }
+
+  @media (max-width: 860px) {
+    .nav-links { position: fixed; inset: 76px 0 0 0; background: var(--paper); flex-direction: column; justify-content: flex-start; padding: 40px 28px; gap: 26px; transform: translateX(100%); transition: transform 0.25s ease; }
+    .nav-links.open { transform: translateX(0); }
+    .nav-toggle { display: block; background: none; border: none; font-size: 1.6rem; color: var(--ink); cursor: pointer; }
+  }
+
+  .hero { position: relative; padding: 88px 0 64px; overflow: hidden; }
+  .hero-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 64px; align-items: center; }
+  @media (max-width: 980px) { .hero-grid { grid-template-columns: 1fr; gap: 44px; } }
+
+  .stamp-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: 1.5px solid var(--stamp); color: var(--stamp);
+    font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 6px 14px; border-radius: 3px;
+    transform: rotate(-3deg);
+    animation: stamp-land 0.5s cubic-bezier(.2,.9,.3,1.3) 0.15s both;
+  }
+  @keyframes stamp-land {
+    from { opacity: 0; transform: rotate(-3deg) scale(1.6); }
+    to { opacity: 1; transform: rotate(-3deg) scale(1); }
+  }
+
+  .hero h1 { font-size: clamp(2.4rem, 4.6vw, 3.6rem); line-height: 1.06; margin: 22px 0 20px; }
+  .hero p.lede { font-size: 1.14rem; color: var(--ink-soft); max-width: 46ch; margin: 0 0 30px; }
+
+  .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 40px; }
+  .btn {
+    font-family: "DM Sans", sans-serif; font-weight: 600; font-size: 0.98rem;
+    padding: 14px 26px; border-radius: 2px; cursor: pointer; border: 1.5px solid transparent;
+    text-decoration: none; display: inline-flex; align-items: center; gap: 10px;
+    transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+  }
+  .btn-primary { background: var(--stamp); color: #fdf7f1; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+  .btn-ghost { border-color: var(--ink); color: var(--ink); }
+  .btn-ghost:hover { background: var(--ink); color: var(--paper); }
+
+  .ledger-strip { display: flex; gap: 30px; flex-wrap: wrap; }
+  .ledger-strip .li { border-left: 2px solid var(--brass); padding-left: 12px; }
+  .ledger-strip .li b { display: block; font-size: 1.3rem; }
+  .ledger-strip .li span { font-size: 0.8rem; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.06em; }
+
+  .invoice-card {
+    background: var(--paper-card); border: 1px solid var(--rule); border-radius: 3px;
+    box-shadow: var(--shadow); padding: 30px 28px 8px; position: relative; transform: rotate(1.2deg);
+  }
+  .invoice-card::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 14px; background: var(--paper);
+    clip-path: polygon(0% 0%, 4% 100%, 8% 0%, 12% 100%, 16% 0%, 20% 100%, 24% 0%, 28% 100%, 32% 0%, 36% 100%, 40% 0%, 44% 100%, 48% 0%, 52% 100%, 56% 0%, 60% 100%, 64% 0%, 68% 100%, 72% 0%, 76% 100%, 80% 0%, 84% 100%, 88% 0%, 92% 100%, 96% 0%, 100% 100%, 100% 0%);
+  }
+  .invoice-head { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px dashed var(--rule); padding-bottom: 14px; margin-bottom: 14px; }
+  .invoice-head span { font-size: 0.75rem; color: var(--ink-faint); }
+  .invoice-row { display: flex; justify-content: space-between; padding: 10px 0; font-size: 0.92rem; border-bottom: 1px solid var(--rule); }
+  .invoice-total { display: flex; justify-content: space-between; padding: 16px 0 22px; font-family: "DM Sans", sans-serif; font-weight: 600; font-size: 1.2rem; }
+  .invoice-total .mono { color: var(--stamp); }
+
+  section { padding: 92px 0; }
+
+  .stamp-badge--center { display: inline-flex; transform: rotate(-1.5deg); }
+  .why-head { text-align: center; max-width: 640px; margin: 0 auto 52px; }
+  .why-head h2 { font-size: clamp(1.9rem, 3vw, 2.5rem); margin: 20px 0 14px; }
+  .why-head p { color: var(--ink-soft); font-size: 1.05rem; }
+  .why-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; }
+  @media (max-width: 980px) { .why-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px) { .why-grid { grid-template-columns: 1fr; } }
+  .why-card { background: var(--paper-card); border: 1px solid var(--rule); border-radius: 3px; padding: 28px 24px; text-align: center; }
+  .why-icon { display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 50%; border: 1.5px solid var(--stamp); color: var(--stamp); margin-bottom: 18px; }
+  .why-card h3 { font-size: 1.05rem; margin-bottom: 8px; }
+  .why-card p { font-size: 0.9rem; color: var(--ink-soft); margin: 0; }
+  .why-cta { text-align: center; margin-top: 44px; }
+  .eyebrow { font-size: 0.74rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--brass); margin-bottom: 14px; }
+  .section-head { max-width: 640px; margin-bottom: 56px; }
+  .section-head h2 { font-size: clamp(1.9rem, 3vw, 2.5rem); margin-bottom: 14px; }
+  .section-head p { color: var(--ink-soft); font-size: 1.05rem; }
+
+  .ledger-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  .ledger-card { background: var(--paper-card); border: 1px solid var(--rule); border-radius: 2px; padding: 26px 24px 22px; position: relative; }
+  .ledger-card .no { position: absolute; top: 20px; right: 22px; color: var(--ink-faint); font-size: 0.85rem; }
+  .ledger-card .icon-tile { width: 52px; height: 52px; border-radius: 10px; background: var(--stamp-soft); display: flex; align-items: center; justify-content: center; margin-bottom: 18px; }
+  .ledger-card .icon-tile svg { width: 28px; height: 28px; stroke: var(--stamp); fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .ledger-card h3 { font-size: 1.12rem; padding-right: 30px; }
+  .ledger-card p { margin: 8px 0 0; color: var(--ink-soft); font-size: 0.95rem; }
+  @media (max-width: 900px) { .ledger-cards { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 620px) { .ledger-cards { grid-template-columns: 1fr; } }
+
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 1px solid var(--rule); border-radius: 3px; overflow: hidden; }
+  .step { padding: 30px 26px; border-right: 1px solid var(--rule); background: var(--paper-card); }
+  .step:last-child { border-right: none; }
+  .step .tag { font-size: 0.75rem; color: var(--stamp); }
+  .step h3 { font-size: 1.05rem; margin: 10px 0 8px; }
+  .step p { font-size: 0.9rem; color: var(--ink-soft); margin: 0; }
+  @media (max-width: 860px) { .steps { grid-template-columns: 1fr; } .step { border-right: none; border-bottom: 1px solid var(--rule); } .step:last-child { border-bottom: none; } }
+
+  .benefits-grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 60px; }
+  @media (max-width: 900px) { .benefits-grid { grid-template-columns: 1fr; } }
+  .benefit { display: flex; gap: 14px; padding: 18px 0; border-bottom: 1px solid var(--rule); }
+  .benefit:first-child { border-top: 1px solid var(--rule); }
+  .benefit .mark { color: var(--stamp); font-weight: 600; }
+  .benefit h4 { font-size: 1rem; margin-bottom: 4px; }
+  .benefit p { margin: 0; color: var(--ink-soft); font-size: 0.92rem; }
+
+  .stat-book { background: var(--ink); border-radius: 3px; padding: 34px; }
+  .stat-book h3 { color: var(--paper); font-size: 1.15rem; margin-bottom: 22px; }
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; }
+  .stat b { display: block; font-size: 1.9rem; color: #d9b877; }
+  .stat span { font-size: 0.78rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--paper); opacity: 0.72; }
+
+  .pricing-card {
+    display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 0;
+    border: 1px solid var(--rule); border-radius: 3px; overflow: hidden;
+  }
+  @media (max-width: 860px) { .pricing-card { grid-template-columns: 1fr; } }
+  .pricing-main { padding: 40px; background: var(--paper-card); }
+  .pricing-main h3 { font-size: 1.4rem; margin-bottom: 10px; }
+  .pricing-main > p { color: var(--ink-soft); margin: 0 0 24px; max-width: 42ch; }
+  .pricing-features { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+  .pricing-features li { font-size: 0.94rem; padding-left: 22px; position: relative; }
+  .pricing-features li::before { content: "✓"; position: absolute; left: 0; color: var(--stamp); font-weight: 600; }
+  .pricing-cycles { padding: 40px; background: var(--ink); color: var(--paper); display: flex; flex-direction: column; gap: 16px; }
+  .cycle { border: 1px solid var(--rule); border-radius: 3px; padding: 16px 18px; }
+  .cycle-featured { border-color: var(--brass); background: var(--brass-soft); }
+  .cycle-label { font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 4px; }
+  .cycle-note { font-size: 0.82rem; opacity: 0.75; }
+  .pricing-cycles .btn-primary { justify-content: center; margin-top: 6px; }
+  .pricing-trial { font-size: 0.8rem; opacity: 0.7; text-align: center; margin: 0; }
+
+  .chits { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  @media (max-width: 980px) { .chits { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 660px) { .chits { grid-template-columns: 1fr; } }
+  .chit { background: var(--paper-card); border: 1px solid var(--rule); padding: 22px 22px 18px; position: relative; border-radius: 2px; }
+  .chit::before { content: ""; position: absolute; top: -1px; left: 16px; width: 26px; height: 10px; background: var(--brass-soft); border-radius: 0 0 3px 3px; }
+  .chit .stars { color: var(--stamp); font-size: 0.85rem; letter-spacing: 0.1em; margin-bottom: 10px; }
+  .chit-tag { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; color: var(--brass); margin-bottom: 10px; }
+  .chit p.quote { font-size: 0.95rem; color: var(--ink); margin: 0 0 16px; }
+  .chit .who { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; }
+  .chit .who b { font-weight: 600; }
+  .chit .who span { color: var(--ink-faint); display: block; font-size: 0.78rem; }
+  .chit .avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--stamp-soft); color: var(--stamp); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.78rem; flex: none; }
+
+  .faq-list { border-top: 1px solid var(--rule); }
+  details.faq-entry { border-bottom: 1px solid var(--rule); padding: 20px 0; }
+  details.faq-entry summary { cursor: pointer; list-style: none; display: grid; grid-template-columns: 44px 1fr 20px; align-items: center; gap: 20px; font-family: "DM Sans", sans-serif; font-weight: 600; font-size: 1.05rem; }
+  details.faq-entry summary::-webkit-details-marker { display: none; }
+  details.faq-entry summary .no { color: var(--brass); font-size: 0.9rem; font-weight: 400; }
+  details.faq-entry summary .chev { transition: transform 0.2s; color: var(--ink-faint); }
+  details.faq-entry[open] summary .chev { transform: rotate(45deg); }
+  .faq-entry .a { padding: 14px 0 0 64px; color: var(--ink-soft); max-width: 62ch; font-size: 0.96rem; }
+
+  .closing { background: var(--ink); color: var(--paper); border-radius: 4px; padding: 72px 56px; text-align: center; position: relative; overflow: hidden; }
+  .closing h2 { color: var(--paper); font-size: clamp(1.8rem, 3.4vw, 2.6rem); margin-bottom: 16px; }
+  .closing p { color: rgba(238,233,223,0.72); max-width: 48ch; margin: 0 auto 32px; }
+  .closing .btn-primary { background: var(--stamp); }
+
+  footer { border-top: 1px solid var(--rule); padding: 56px 0 30px; }
+  .foot-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
+  @media (max-width: 760px) { .foot-grid { grid-template-columns: 1fr 1fr; } }
+  .foot-grid h4 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-faint); margin-bottom: 14px; font-weight: 500; }
+  .foot-grid ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .foot-grid a { text-decoration: none; color: var(--ink-soft); font-size: 0.92rem; }
+  .foot-grid a:hover { color: var(--stamp); }
+  .foot-bottom { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--rule); padding-top: 24px; font-size: 0.82rem; color: var(--ink-faint); flex-wrap: wrap; gap: 12px; }
+
+  .fade-up { opacity: 0; transform: translateY(18px); transition: opacity 0.5s ease, transform 0.5s ease; }
+  .fade-up.in { opacity: 1; transform: translateY(0); }
+
+  .wa-float {
+    position: fixed; right: 22px; bottom: 22px; z-index: 60;
+    display: flex; align-items: center; gap: 10px;
+    background: var(--ink); color: var(--paper); text-decoration: none;
+    padding: 12px 18px; border-radius: 30px; box-shadow: var(--shadow); font-size: 0.85rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="wrap">
+    <a href="#top" class="brand"><span>Invoxa</span><span class="dot">.</span></a>
+    <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false" id="navToggle">☰</button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#why">Why Invoxa</a></li>
+      <li><a href="#ledger">What it replaces</a></li>
+      <li><a href="#trade">Built for the trade</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+      <li><a href="#faq">Questions</a></li>
+      <li><a href="https://wa.me/917600384075" class="nav-cta" target="_blank" rel="noopener noreferrer">Get started</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="stamp-badge">Duplicate Copy · Business Owner</span>
+        <h1>One ledger for every phone that moves through your counter.</h1>
+        <p class="lede">Invoxa replaces the notebook, the WhatsApp chats, and the loose invoice booklet with one running record of every purchase, sale, exchange, and cash close — searchable by IMEI, not memory.</p>
+        <div class="hero-actions">
+          <a href="https://wa.me/917600384075" class="btn btn-primary" target="_blank" rel="noopener noreferrer">Start free trial →</a>
+          <a href="#ledger" class="btn btn-ghost">See what it replaces</a>
+        </div>
+        <div class="ledger-strip">
+          <div class="li"><b class="mono">1,000+</b><span>Shops on Invoxa</span></div>
+          <div class="li"><b class="mono">₹50Cr+</b><span>Moved through the ledger</span></div>
+          <div class="li"><b class="mono">99.9%</b><span>Uptime, daily backups</span></div>
+        </div>
+      </div>
+      <div class="fade-up">
+        <div class="invoice-card">
+          <div class="invoice-head">
+            <span>INVOICE / EXCHANGE-004821</span>
+            <span>TODAY, 6:42 PM</span>
+          </div>
+          <div class="invoice-row"><span>iPhone 13, 128GB — purchase</span><b class="mono">₹28,500</b></div>
+          <div class="invoice-row"><span>Galaxy S21 — exchange credit</span><b class="mono">−₹12,000</b></div>
+          <div class="invoice-row"><span>Screen guard + case</span><b class="mono">₹350</b></div>
+          <div class="invoice-total"><span>Balance received</span><span class="mono">₹16,850</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="why">
+    <div class="wrap">
+      <div class="why-head">
+        <span class="stamp-badge stamp-badge--center">Why Invoxa</span>
+        <h2>Why shop owners choose Invoxa over a notebook — or a generic tool.</h2>
+        <p>Four reasons dealers actually give us, not a features list dressed up as reasons.</p>
+      </div>
+      <div class="why-grid">
+        <div class="why-card fade-up">
+          <span class="why-icon" aria-hidden="true">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 5.5C4 4.67 4.67 4 5.5 4H12v16H5.5A1.5 1.5 0 0 1 4 18.5v-13Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M20 5.5c0-.83-.67-1.5-1.5-1.5H12v16h6.5a1.5 1.5 0 0 0 1.5-1.5v-13Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 7.5h5M12 11h5M12 14.5h5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          </span>
+          <h3>Built for one job</h3>
+          <p>A resale counter's ledger, purpose-built — not a generic inventory tool with a phone icon bolted on.</p>
+        </div>
+        <div class="why-card fade-up">
+          <span class="why-icon" aria-hidden="true">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 4 4 8l8 4 8-4-8-4Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M4 12l8 4 8-4M4 16l8 4 8-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <h3>Everything in one place</h3>
+          <p>Stock, sales, exchange, expenses, and daily closing — one ledger, not four disconnected apps.</p>
+        </div>
+        <div class="why-card fade-up">
+          <span class="why-icon" aria-hidden="true">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 15V9m0 6 4-4M4 15l4 4M20 9v6m0-6-4 4m4-4-4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <h3>Grows with your counter</h3>
+          <p>Add a second location or another cashier without switching tools or re-entering a single record.</p>
+        </div>
+        <div class="why-card fade-up">
+          <span class="why-icon" aria-hidden="true">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v7a2.5 2.5 0 0 1-2.5 2.5H10l-4 4v-4H6.5A2.5 2.5 0 0 1 4 13.5v-7Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          </span>
+          <h3>A real person answers</h3>
+          <p>WhatsApp support that already knows your ledger — not a ticket number and a three-day wait.</p>
+        </div>
+      </div>
+      <div class="why-cta">
+        <a href="https://wa.me/917600384075" class="btn btn-primary" target="_blank" rel="noopener noreferrer">Schedule a free walkthrough →</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="ledger" class="band">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow">What it replaces</div>
+        <h2>Six notebooks. One counter. Zero handoffs.</h2>
+        <p>Every line below is a real habit Invoxa is built to end — not a feature list, a list of things you can stop doing by hand.</p>
+      </div>
+      <div class="ledger-cards">
+        <div class="ledger-card fade-up">
+          <span class="no mono">01</span>
+          <div class="icon-tile">
+            <svg viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="1.6"/><line x1="10" y1="18" x2="14" y2="18"/><path d="M8.5 8.5h7M8.5 11h5"/></svg>
+          </div>
+          <h3>Stock, by IMEI</h3>
+          <p>Every handset tracked from the day you buy it to the day it's sold or exchanged — no more counting phones on a shelf to know what you actually have.</p>
+        </div>
+        <div class="ledger-card fade-up">
+          <span class="no mono">02</span>
+          <div class="icon-tile">
+            <svg viewBox="0 0 24 24"><path d="M6 2.5h9l3 3v15.5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1Z"/><path d="M15 2.5v3h3"/><path d="M8 12l2 2 5-5"/></svg>
+          </div>
+          <h3>Sales &amp; invoicing</h3>
+          <p>A proper invoice in under a minute, with exchange credit and part-payment worked out for you, not on the back of the old one.</p>
+        </div>
+        <div class="ledger-card fade-up">
+          <span class="no mono">03</span>
+          <div class="icon-tile">
+            <svg viewBox="0 0 24 24"><rect x="2.5" y="6" width="14" height="9" rx="1.4"/><circle cx="9.5" cy="10.5" r="2"/><path d="M16.5 9h5v9a1.4 1.4 0 0 1-1.4 1.4H10a1.4 1.4 0 0 1-1.4-1.4v-2.9"/></svg>
+          </div>
+          <h3>Cash, card, UPI — one reconciliation</h3>
+          <p>Every payment method lands in the same ledger, so closing the till stops being a separate job from closing the day.</p>
+        </div>
+        <div class="ledger-card fade-up">
+          <span class="no mono">04</span>
+          <div class="icon-tile">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12.5" r="8.2"/><path d="M12 7.8V12.5l4 2.2"/><path d="M9 2.2h6"/></svg>
+          </div>
+          <h3>Daily closing, automatically</h3>
+          <p>Cash counted, profit calculated, discrepancies flagged the moment they happen — not three weeks later when the notebook doesn't add up.</p>
+        </div>
+        <div class="ledger-card fade-up">
+          <span class="no mono">05</span>
+          <div class="icon-tile">
+            <svg viewBox="0 0 24 24"><path d="M3 20.5h18"/><path d="M3 20.5V4"/><path d="M3.5 16l5-5.5 3.5 3 6-7"/><path d="M14.5 6.5H18v3.5"/></svg>
+          </div>
+          <h3>Profit &amp; loss, by the day or the year</h3>
+          <p>Which models actually make money. Which ones sit on the shelf. Answered in a report, not a guess.</p>
+        </div>
+        <div class="ledger-card fade-up">
+          <span class="no mono">06</span>
+          <div class="icon-tile">
+            <svg viewBox="0 0 24 24"><path d="M12 2.5 4.5 5.5v6c0 5 3.3 8 7.5 10 4.2-2 7.5-5 7.5-10v-6L12 2.5Z"/><circle cx="12" cy="10.5" r="2.1"/><path d="M8.7 15c.6-1.6 2-2.4 3.3-2.4s2.7.8 3.3 2.4"/></svg>
+          </div>
+          <h3>Staff access, without the risk</h3>
+          <p>Give each person exactly what their job needs — nothing more — and a full trail of who touched what.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="trade">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow">Built for the trade</div>
+        <h2>Made for how phones actually change hands here.</h2>
+        <p>Not a generic inventory tool with phones bolted on — the details below are specific to running a resale counter in India.</p>
+      </div>
+      <div class="chits">
+        <div class="chit fade-up">
+          <div class="chit-tag">GST</div>
+          <p class="quote">Every invoice carries your GST number and tax breakdown automatically — no separate billing software to reconcile against the ledger.</p>
+        </div>
+        <div class="chit fade-up">
+          <div class="chit-tag">KYC</div>
+          <p class="quote">Capture Aadhar or PAN on higher-value purchases and attach it straight to the transaction — the paperwork regulators expect, without a separate filing cabinet.</p>
+        </div>
+        <div class="chit fade-up">
+          <div class="chit-tag">WARR</div>
+          <p class="quote">Warranty windows travel with the handset itself, from the day you buy it to the day you resell it — not with a slip of paper that gets lost.</p>
+        </div>
+        <div class="chit fade-up">
+          <div class="chit-tag">MULTI</div>
+          <p class="quote">Run more than one counter on the same account, with stock and staff scoped to each location — one ledger, not one spreadsheet per shop.</p>
+        </div>
+        <div class="chit fade-up">
+          <div class="chit-tag">EXCH</div>
+          <p class="quote">Exchange and part-payment are built into the invoice, not a manual discount you calculate by hand at the counter.</p>
+        </div>
+        <div class="chit fade-up">
+          <div class="chit-tag">AI</div>
+          <p class="quote">An assistant that already knows your stock and sales can answer "what sold this week" without you opening a single report.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="setup">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow">Getting started</div>
+        <h2>Live on your counter by this evening.</h2>
+        <p>No migration project. No downtime between the old system and this one.</p>
+      </div>
+      <div class="steps">
+        <div class="step fade-up"><span class="tag mono">STEP 1</span><h3>Open your ledger</h3><p>Sign up and you're inside your own workspace in under two minutes.</p></div>
+        <div class="step fade-up"><span class="tag mono">STEP 2</span><h3>Bring in your stock</h3><p>Add what's on the shelf now, or bulk-import from a spreadsheet you already have.</p></div>
+        <div class="step fade-up"><span class="tag mono">STEP 3</span><h3>Write the first entry</h3><p>Make a sale, raise the invoice, and watch it land in the ledger on its own.</p></div>
+        <div class="step fade-up"><span class="tag mono">STEP 4</span><h3>Close the day</h3><p>Reconcile cash, see the day's profit, and start tomorrow already caught up.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="numbers" class="band">
+    <div class="wrap benefits-grid">
+      <div>
+        <div class="eyebrow">Why shops switch</div>
+        <h2 style="margin-bottom:36px;">Built with dealers, not just for them.</h2>
+        <div class="benefit fade-up"><span class="mark">✓</span><div><h4>Five hours back, most days</h4><p>Invoicing, stock updates, and closing stop being separate chores done twice.</p></div></div>
+        <div class="benefit fade-up"><span class="mark">✓</span><div><h4>Records that actually reconcile</h4><p>Every transaction, every handset, every rupee — recorded once, matched automatically.</p></div></div>
+        <div class="benefit fade-up"><span class="mark">✓</span><div><h4>Decisions backed by the ledger, not a hunch</h4><p>Real margins by model, category, and staff member, updated the moment a sale closes.</p></div></div>
+        <div class="benefit fade-up"><span class="mark">✓</span><div><h4>Backed up, every single day</h4><p>Encrypted in transit and at rest. The ledger survives a lost phone or a dead laptop.</p></div></div>
+      </div>
+      <div class="fade-up">
+        <div class="stat-book">
+          <h3>Across shops on Invoxa</h3>
+          <div class="stat-grid">
+            <div class="stat"><b>1,000+</b><span>Active shops</span></div>
+            <div class="stat"><b>₹50Cr+</b><span>Transactions managed</span></div>
+            <div class="stat"><b>10K+</b><span>Daily closings run</span></div>
+            <div class="stat"><b>99.9%</b><span>Platform uptime</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="stories">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow">From the counter</div>
+        <h2>What shop owners actually say.</h2>
+      </div>
+      <div class="chits">
+        <div class="chit fade-up">
+          <div class="stars">★★★★★</div>
+          <p class="quote">"I used to spend two hours every evening on paperwork. Now I close in ten minutes."</p>
+          <div class="who"><span class="avatar">RK</span><div><b>Rajesh Kumar</b><span>Phone dealer, Mumbai</span></div></div>
+        </div>
+        <div class="chit fade-up">
+          <div class="stars">★★★★★</div>
+          <p class="quote">"The profit tracking is the whole reason I switched. I finally know which models are making money."</p>
+          <div class="who"><span class="avatar">PS</span><div><b>Priya Singh</b><span>Store owner, Delhi</span></div></div>
+        </div>
+        <div class="chit fade-up">
+          <div class="stars">★★★★★</div>
+          <p class="quote">"Managing staff access used to be a nightmare with spreadsheets. Now everyone sees only what they need."</p>
+          <div class="who"><span class="avatar">AM</span><div><b>Amit Malik</b><span>Business manager, Bengaluru</span></div></div>
+        </div>
+        <div class="chit fade-up">
+          <div class="stars">★★★★★</div>
+          <p class="quote">"Support set the whole thing up with me over a call in fifteen minutes. Highly recommend."</p>
+          <div class="who"><span class="avatar">VK</span><div><b>Vikram Kumar</b><span>Reseller, Hyderabad</span></div></div>
+        </div>
+        <div class="chit fade-up">
+          <div class="stars">★★★★★</div>
+          <p class="quote">"Paid for itself in the first month, just from catching stock discrepancies we'd been missing for years."</p>
+          <div class="who"><span class="avatar">SG</span><div><b>Sneha Gupta</b><span>Entrepreneur, Pune</span></div></div>
+        </div>
+        <div class="chit fade-up">
+          <div class="stars">★★★★★</div>
+          <p class="quote">"Real-time stock finally stopped us over-ordering models nobody was buying."</p>
+          <div class="who"><span class="avatar">NN</span><div><b>Nikhil Nair</b><span>Store manager, Chennai</span></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pricing">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow">Pricing</div>
+        <h2>One plan. Every feature. No fine print.</h2>
+        <p>There's no starter tier missing the reports you need, and no "enterprise" tier gatekeeping the features you already pay for — every counter gets the full ledger.</p>
+      </div>
+      <div class="pricing-card fade-up">
+        <div class="pricing-main">
+          <h3>Invoxa Standard</h3>
+          <p>Stock, sales, exchange, cash closing, reports, and staff access — the entire system, on day one.</p>
+          <ul class="pricing-features">
+            <li>Unlimited stock entries, by IMEI</li>
+            <li>Unlimited invoices and staff logins</li>
+            <li>GST-ready invoicing &amp; daily cash closing</li>
+            <li>Full profit &amp; loss and ledger reporting</li>
+          </ul>
+        </div>
+        <div class="pricing-cycles">
+          <div class="cycle">
+            <span class="cycle-label">Billed monthly</span>
+            <div class="cycle-note">Pay as you go, cancel anytime</div>
+          </div>
+          <div class="cycle cycle-featured">
+            <span class="cycle-label">Billed yearly</span>
+            <div class="cycle-note">Two months free against the monthly rate</div>
+          </div>
+          <a href="https://wa.me/917600384075" class="btn btn-primary" target="_blank" rel="noopener noreferrer">Get a quote for your counter →</a>
+          <p class="pricing-trial">Every new account starts on a free trial — full access, no card required.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq" class="band">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow">Questions</div>
+        <h2>FAQ's</h2>
+      </div>
+      <div class="faq-list">
+        <details class="faq-entry" open>
+          <summary><span class="no mono">Q1</span><span>How long does setup actually take?</span><span class="chev">+</span></summary>
+          <div class="a">Most shops are entering sales the same day. We walk you through it, and existing stock can be bulk-imported from a spreadsheet rather than typed in one by one.</div>
+        </details>
+        <details class="faq-entry">
+          <summary><span class="no mono">Q2</span><span>Is my data actually secure?</span><span class="chev">+</span></summary>
+          <div class="a">Yes — encrypted in transit and at rest, with automated daily backups. Your ledger doesn't live on one laptop or one phone.</div>
+        </details>
+        <details class="faq-entry">
+          <summary><span class="no mono">Q3</span><span>Can I run this from my phone at the counter?</span><span class="chev">+</span></summary>
+          <div class="a">Yes. Invoxa is fully responsive — raise invoices and check stock from a phone, tablet, or the counter desktop, whichever's in front of you.</div>
+        </details>
+        <details class="faq-entry">
+          <summary><span class="no mono">Q4</span><span>What happens if I get stuck?</span><span class="chev">+</span></summary>
+          <div class="a">Chat, email, and phone support during business hours, plus a knowledge base for the day-to-day questions.</div>
+        </details>
+        <details class="faq-entry">
+          <summary><span class="no mono">Q5</span><span>Can my staff have their own logins?</span><span class="chev">+</span></summary>
+          <div class="a">Unlimited team members, each with access scoped to their role — a cashier doesn't need to see your P&amp;L to ring up a sale.</div>
+        </details>
+        <details class="faq-entry">
+          <summary><span class="no mono">Q6</span><span>What does it cost?</span><span class="chev">+</span></summary>
+          <div class="a">One plan, with the full system included — see <a href="#pricing" style="color:var(--stamp);">Pricing</a> above. Start on a free trial, then continue monthly or yearly; ask us about your specific counter and we'll quote it straight.</div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="closing fade-up">
+        <h2>Your next sale can already be in the ledger.</h2>
+        <p>Join the shops already running their counter on Invoxa — free trial, no card required to start.</p>
+        <a href="https://wa.me/917600384075" class="btn btn-primary" target="_blank" rel="noopener noreferrer">Start your free trial →</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<a href="https://wa.me/917600384075" class="wa-float" target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp at 7600384075">
+  <span>WhatsApp — 7600384075</span>
+</a>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <a href="#top" class="brand" style="margin-bottom:10px;display:inline-flex;"><span>Invoxa</span><span class="dot">.</span></a>
+        <p style="color:var(--ink-soft);font-size:0.92rem;max-width:32ch;">The counter-side ledger for phone dealers and resellers across India.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#ledger">What it replaces</a></li>
+          <li><a href="#trade">Built for the trade</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#top">About</a></li>
+          <li><a href="#top">Careers</a></li>
+          <li><a href="https://wa.me/917600384075" target="_blank" rel="noopener noreferrer">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#top">Privacy policy</a></li>
+          <li><a href="#top">Terms of service</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Invoxa. All rights reserved.</span>
+      <span>Made for the counter, not the boardroom.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var toggle = document.getElementById('navToggle');
+    var links = document.getElementById('navLinks');
+    if (toggle) {
+      toggle.addEventListener('click', function () {
+        var open = links.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+      links.querySelectorAll('a').forEach(function (a) {
+        a.addEventListener('click', function () { links.classList.remove('open'); });
+      });
+    }
+
+    var targets = document.querySelectorAll('.fade-up');
+    if ('IntersectionObserver' in window && targets.length) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in');
+            io.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.15 });
+      targets.forEach(function (el) { io.observe(el); });
+    } else {
+      targets.forEach(function (el) { el.classList.add('in'); });
+    }
+  })();
+</script>
+</body>
+</html>
